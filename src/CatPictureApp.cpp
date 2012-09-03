@@ -1,5 +1,8 @@
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Texture.h"
+#include "Resources.h"
+#include "cinder\ImageIo.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -13,14 +16,18 @@ class CatPictureApp : public AppBasic {
 	void draw();
 
   private:
-	float brightness;
-	float greenValue;
+	Surface* mySurface_;
+	gl::Texture* myTexture_;
+	gl::Texture* picture_;
+	bool firstFrame;
 };
 
 void CatPictureApp::setup() // When the program starts
 {
-	brightness = 0.0;
-	greenValue = 0.0;
+	mySurface_ = new Surface(1024, 1024, false);
+	myTexture_ = new gl::Texture(1024, 1024);
+	//picture_ = new gl::Texture(loadImage(loadResources(RES_
+	firstFrame = true;
 }
 
 void CatPictureApp::mouseDown( MouseEvent event )
@@ -29,36 +36,38 @@ void CatPictureApp::mouseDown( MouseEvent event )
 
 void CatPictureApp::update()
 {
-	if(brightness < 1.0f && greenValue <= 0.0f)
+	uint8_t* surfaceArray = (*mySurface_).getData();
+	int arrayLength = 3 * (*mySurface_).getWidth() * (*mySurface_).getHeight();
+
+	for(int x = 0; x < arrayLength; x++)
 	{
-		brightness += 0.01f; // Raise red
-	}
-	else if(brightness >= 1.0f && greenValue < 1.0f)
-	{
-		//brightness = 1.0f;
-		greenValue += 0.01f; // Raise to yellow
-	}
-	else if(greenValue >= 1.0f && brightness > 0.0f)
-	{
-		brightness -= 0.01f;
-	}
-	else if(greenValue > 0.0f)
-	{
-		//brightness = 0.0;
-		greenValue -= 0.01f;
-		brightness += 0.01f;
+		/*if(x % 3 == 0) // If it's the red component, set it to 255
+			surfaceArray[x] == 255;
+		else  // Otherwise 
+			surfaceArray[x] == 0;*/
+		if(x == 100)
+			surfaceArray[x] == 255;
 	}
 
+	//(*myTexture_).update(*mySurface_, (*mySurface_).getBounds());
+	*myTexture_ = gl::Texture(*mySurface_);
 
-	/*greenValue  += 0.01f;
-	if(greenValue > 1.0f)
-		brightness -= 0.01f;*/
+	if(firstFrame)
+	{
+		firstFrame = false;
+	}
 }
 
 void CatPictureApp::draw()
 {
+
+	gl::draw(*myTexture_);
+	//gl::Texture picture( loadImage( loadResource( RES_IMG) ) );
+	//gl::draw(picture);
+	//Color8u c = new Color8u(255, 0, 0);
+	//gl::draw(*myTexture_, Rectf(100, 50, 100, 50));
 	// clear out the window with black
-	gl::clear( Color( brightness, greenValue, 0.0f ) ); 
+	//gl::clear( Color( brightness, greenValue, 0.0f ) ); 
 }
 
 CINDER_APP_BASIC( CatPictureApp, RendererGl )
