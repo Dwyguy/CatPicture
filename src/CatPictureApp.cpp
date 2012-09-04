@@ -26,6 +26,7 @@ class CatPictureApp : public AppBasic {
 	static const int surfaceSize = 1024;
 
 	void rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2);
+	void drawGradient(uint8_t* surfaceArray);
 };
 
 void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2)
@@ -44,13 +45,27 @@ void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int
 	if(endY >= appHeight)
 		endY = appHeight - 1;
 
+
+	// 100 means 100 pixels down
 	for(int y = 100; y <= endY; y++)
 	{
-		for(int x = 0; x <= endX; x++)
+		for(int x = 100; x <= endX; x++)
 		{
-			surfaceArray[(3 * x) + (y * appWidth * 3)] = 255;
+			int ribbon = 3 * (x + y * surfaceSize);
+
+			surfaceArray[ribbon] = surfaceArray[ribbon] / 2 + 255;
+			surfaceArray[ribbon + 1] = surfaceArray[ribbon + 1] + 0;
+			surfaceArray[ribbon + 2] = surfaceArray[ribbon + 2] + 0;
+
+			/*
+			surfaceArray[3 * (x + y * endX)] = 255;
+			surfaceArray[3 * (x + y * endX) + 1] = 0;
+			surfaceArray[3 * (x + y * endX) + 2] = 0;
+
+			/*surfaceArray[(3 * x) + (y * appWidth * 3)] = 255;
 			surfaceArray[(3 * x) + (y * appWidth * 3) + 1] = 0;
 			surfaceArray[(3 * x) + (y * appWidth * 3) + 2] = 0;
+			*/
 		}
 	}
 
@@ -59,6 +74,9 @@ void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int
 void CatPictureApp::setup() // When the program starts
 {
 	mySurface_ = new Surface(surfaceSize, surfaceSize, false);
+
+	uint8_t* surfaceArray = (*mySurface_).getData();
+	rectangle(surfaceArray, 600, 300, 600, 300);
 }
 
 void CatPictureApp::mouseDown( MouseEvent event )
@@ -67,10 +85,10 @@ void CatPictureApp::mouseDown( MouseEvent event )
 
 void CatPictureApp::update()
 {
-	uint8_t* surfaceArray = (*mySurface_).getData();
+	
 	//int arrayLength = 3 * (*mySurface_).getWidth() * (*mySurface_).getHeight();
 
-	rectangle(surfaceArray, 400, 300, 400, 300);
+	
 
 	/*for(int x = 0; x < arrayLength; x++)
 	{		
