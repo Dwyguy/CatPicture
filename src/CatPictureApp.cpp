@@ -3,6 +3,7 @@
 #include "cinder/gl/Texture.h"
 #include "Resources.h"
 #include "cinder\ImageIo.h"
+#include <math.h>
 
 using namespace ci;
 using namespace ci::app;
@@ -28,6 +29,7 @@ class CatPictureApp : public AppBasic {
 
 	void rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2);
 	void drawGradient(uint8_t* surfaceArray);
+	void drawCircle(uint8_t* surfaceArray, int centerX, int centerY, int radius);
 };
 
 void CatPictureApp::prepareSettings(Settings* settings)
@@ -86,13 +88,48 @@ void CatPictureApp::drawGradient(uint8_t* surfaceArray)
 						
 		}
 	}
+}
+
+void CatPictureApp::drawCircle(uint8_t* surfaceArray, int centerX, int centerY, int radius)
+{
+	// Make sure the radius isn't negative
+	if(radius < 0)
+		return;
+
+	Color8u c = Color8u(0, 255, 0);
+
+	// As a not for interesting effects later, if you get rid of the
+	// "- radius" in the initialization of the loop control variables
+	// you get only a quarter of the circle (bottom right quadrant)
+
+	for(int y = centerY - radius; y <= centerY + radius; y++)
+	{
+		for(int x = centerX - radius; x <= centerX + radius; x++)
+		{
+			// Taken by Prof. Brinkman's suggestion in his code to make sure
+			// the array isn't accessed out of bounds (see documentation at top)
+			if(y < 0 || x < 0 || x >= appWidth || y >= appHeight)
+				continue;
+
+			int distance = (int)sqrt(pow((x - centerX), 2.0)  + pow((y - centerY), 2.0));
+
+			if(distance <= radius)
+			{
+				int ribbon = 3 * (x + y * surfaceSize);
+				surfaceArray[ribbon] = c.r;
+				surfaceArray[ribbon + 1] = c.g;
+				surfaceArray[ribbon + 2] = c.b;
+			}
+		}
+	}
 
 }
 
 void CatPictureApp::setup() // When the program starts
 {
 	mySurface_ = new Surface(surfaceSize, surfaceSize, false);
-
+	uint8_t* surfaceArray = (*mySurface_).getData();
+	
 	
 }
 
@@ -107,6 +144,7 @@ void CatPictureApp::update()
 	uint8_t* surfaceArray = (*mySurface_).getData();
 	drawGradient(surfaceArray);
 	rectangle(surfaceArray, 200, 300, 200, 300);
+	drawCircle(surfaceArray, 400, 400, 200);
 	
 
 	/*for(int x = 0; x < arrayLength; x++)
