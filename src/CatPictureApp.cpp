@@ -14,6 +14,7 @@ class CatPictureApp : public AppBasic {
 	void mouseDown( MouseEvent event );	
 	void update();
 	void draw();
+	void prepareSettings(Settings* settings);
 
   private:
 	Surface* mySurface_;
@@ -28,6 +29,12 @@ class CatPictureApp : public AppBasic {
 	void rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2);
 	void drawGradient(uint8_t* surfaceArray);
 };
+
+void CatPictureApp::prepareSettings(Settings* settings)
+{
+	(*settings).setWindowSize(appWidth, appHeight);
+	(*settings).setResizable(false);
+}
 
 void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2)
 {
@@ -64,27 +71,19 @@ void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int
 void CatPictureApp::drawGradient(uint8_t* surfaceArray)
 {
 	Color8u c = Color8u(0, 0, 0);
-	int counter = 0, incrementer = 0;
-
-	// This currently doesn't display the whole gradient.
-	// I will later shorten the distance the loops cover to
-	// display the full gradient.
+	
 	for(int y = 0; y < surfaceSize; y++)
 	{
-		for(int x = 0; x < surfaceSize; x++)
+		for(int x = 0; x < appWidth; x++)
 		{
 			int ribbon = 3 * (x + y * surfaceSize);
+			
+			int special = (int)((256 * x) / appWidth);
 
-			surfaceArray[ribbon] = c.r + incrementer;
-			surfaceArray[ribbon + 1] = c.g + incrementer;
-			surfaceArray[ribbon + 2] = c.b + incrementer;
-			counter++;
-
-			if(counter == 4)
-			{
-				counter = 0;
-				incrementer++;
-			}			
+			surfaceArray[ribbon] = c.r + special;
+			surfaceArray[ribbon + 1] = c.g + special;
+			surfaceArray[ribbon + 2] = c.b + special;
+						
 		}
 	}
 
