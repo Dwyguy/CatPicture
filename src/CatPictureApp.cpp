@@ -45,6 +45,7 @@ void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int
 	if(endY >= appHeight)
 		endY = appHeight - 1;
 
+	Color8u c = Color8u(255, 0, 0);
 
 	// 100 means 100 pixels down
 	for(int y = 100; y <= endY; y++)
@@ -53,19 +54,37 @@ void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int
 		{
 			int ribbon = 3 * (x + y * surfaceSize);
 
-			surfaceArray[ribbon] = surfaceArray[ribbon] / 2 + 255;
-			surfaceArray[ribbon + 1] = surfaceArray[ribbon + 1] + 0;
-			surfaceArray[ribbon + 2] = surfaceArray[ribbon + 2] + 0;
+			surfaceArray[ribbon] = c.r;
+			surfaceArray[ribbon + 1] = c.g;
+			surfaceArray[ribbon + 2] = c.b;
+		}
+	}
+}
 
-			/*
-			surfaceArray[3 * (x + y * endX)] = 255;
-			surfaceArray[3 * (x + y * endX) + 1] = 0;
-			surfaceArray[3 * (x + y * endX) + 2] = 0;
+void CatPictureApp::drawGradient(uint8_t* surfaceArray)
+{
+	Color8u c = Color8u(0, 0, 0);
+	int counter = 0, incrementer = 0;
 
-			/*surfaceArray[(3 * x) + (y * appWidth * 3)] = 255;
-			surfaceArray[(3 * x) + (y * appWidth * 3) + 1] = 0;
-			surfaceArray[(3 * x) + (y * appWidth * 3) + 2] = 0;
-			*/
+	// This currently doesn't display the whole gradient.
+	// I will later shorten the distance the loops cover to
+	// display the full gradient.
+	for(int y = 0; y < surfaceSize; y++)
+	{
+		for(int x = 0; x < surfaceSize; x++)
+		{
+			int ribbon = 3 * (x + y * surfaceSize);
+
+			surfaceArray[ribbon] = c.r + incrementer;
+			surfaceArray[ribbon + 1] = c.g + incrementer;
+			surfaceArray[ribbon + 2] = c.b + incrementer;
+			counter++;
+
+			if(counter == 4)
+			{
+				counter = 0;
+				incrementer++;
+			}			
 		}
 	}
 
@@ -75,8 +94,7 @@ void CatPictureApp::setup() // When the program starts
 {
 	mySurface_ = new Surface(surfaceSize, surfaceSize, false);
 
-	uint8_t* surfaceArray = (*mySurface_).getData();
-	rectangle(surfaceArray, 600, 300, 600, 300);
+	
 }
 
 void CatPictureApp::mouseDown( MouseEvent event )
@@ -87,7 +105,9 @@ void CatPictureApp::update()
 {
 	
 	//int arrayLength = 3 * (*mySurface_).getWidth() * (*mySurface_).getHeight();
-
+	uint8_t* surfaceArray = (*mySurface_).getData();
+	drawGradient(surfaceArray);
+	rectangle(surfaceArray, 200, 300, 200, 300);
 	
 
 	/*for(int x = 0; x < arrayLength; x++)
