@@ -31,7 +31,7 @@ class CatPictureApp : public AppBasic {
 	void drawGradient(uint8_t* surfaceArray);
 	void drawCircle(uint8_t* surfaceArray, int centerX, int centerY, int radius);
 	void tint(uint8_t* surfaceArray);
-	void blur(uint8_t* surfaceArray, uint8_t* blurArray);
+	void blur(uint8_t* surfaceArray);
 };
 
 void CatPictureApp::prepareSettings(Settings* settings)
@@ -159,67 +159,91 @@ void CatPictureApp::tint(uint8_t* surfaceArray)
 	}
 }
 
-void CatPictureApp::blur(uint8_t* surfaceArray, uint8_t* blurArray)
+void CatPictureApp::blur(uint8_t* surfaceArray)
 {
 	//uint8_t* blurArray = [appWidth * appHeight * 3];
 	// Need a temporary image to blur, so we don't overwrite what we have
-	static uint8_t tempBlur[surfaceSize * surfaceSize * 3];
+	/*static uint8_t tempBlur[surfaceSize * surfaceSize * 3];
+	memcpy(tempBlur, surfaceArray, surfaceSize * surfaceSize * 3);
 
 	uint8_t kernel[9] = {4, 3, 4,
 						 4, 3, 4,
-						 4, 3, 4};
+						 4, 3, 4};*/
 
-	int ribbon, blurX, blurY, index, n;
+	int ribbon, index;
 	uint8_t redVal = 0, greenVal = 0, blueVal = 0;
+	uint8_t total = 0;
+
+	for(int y = 1; y <= appHeight - 1; y++)
+	{
+		for(int x = 1; x <= appWidth - 1; x++)
+		{
+			index = 3 * (y + x * surfaceSize);
+			total = 0;
+
+			for(int blurY = -1; blurY <= 1; blurY++)
+			{
+				for(int blurX = -1; blurX <= 1; blurX++)
+				{
+					total += surfaceArray[3 * (x + blurX + (y + blurY) * surfaceSize)];
+				}
+			}
+
+			surfaceArray[index] = total / 9;
+			surfaceArray[index + 1] = total / 9;
+			surfaceArray[index + 2] = total / 9;
+		}
+	}
 	
 	// Loops start at 1 so the edge is not taken into account
-	for(int y = 1; y < appHeight - 1; y++)
+	/*for(int y = 1; y <= appHeight - 1; y++)
 	{
-		for(int x = 1; x < appWidth - 1; x++)
+		for(int x = 1; x <= appWidth - 1; x++)
 		{
 			// Use appWidth instead of surfaceSize here because we only
 			// want to blur what is visible in the window.
-			ribbon = 3 * (x + y * appWidth);
-
-			if(blurArray[ribbon] < (256 / 3)) // What does this mean?
+			//ribbon = 3 * (x + y * appWidth);
+			
+			redVal = 0;
+			greenVal = 0;
+			blueVal = 0;
+			
+			for(int blurY = y - 1; blurY <= y + 1; blurY++)
 			{
-				redVal = 0;
-				greenVal = 0;
-				blueVal = 0;
-
-				for(blurY = -1; blurY < 1; blurY++)
+				for(int blurX = x - 1; blurX <= x + 1; blurX++)
 				{
-					for(blurX = -1; blurX < 1; blurX++)
-					{
-						index = 3 * ((x + blurX) + (y + blurY) * surfaceSize);
-						n = kernel[(blurX + 1) + (blurY + 1) * 3];
+					index = 3 * (blurX + (blurY) * surfaceSize);	
 
-						tempBlur[index] += n;
-						tempBlur[index + 1] += n;
-						tempBlur[index + 2] += n;
+					redVal += surfaceArray[index];
+					greenVal += surfaceArray[index + 1];
+					blueVal += surfaceArray[index + 2];
 
-						redVal += n;
-						greenVal += n;
-						blueVal += n;
-					}
-				}
-			}
-			else
-			{
-				index = 3 * (x + y * surfaceSize);
-				redVal = tempBlur[index];
-				greenVal = tempBlur[index + 1];
-				blueVal = tempBlur[index + 2];
-			}
+					/*redVal += (tempBlur[index] >> n);
+					greenVal += (tempBlur[index + 1] >> n);
+					blueVal += (tempBlur[index + 2] >> n);*/
 
+					/*I tried to use something different than the bitwise operators
+					that Dr. Brinkman used because I didn't fully understand them,
+					but in not fully understanding them, I wasn't able to work around
+					them, or so I suspect.  Therefore, I am just using them and
+					will make a note to learn their exact function later.
+
+					tempBlur[index] += n;
+					tempBlur[index + 1] += n;
+					tempBlur[index + 2] += n;
+
+					redVal += n;
+					greenVal += n;
+					blueVal += n;*/
+				/*}
+			}				
+			
 			index = 3 * (x + y * surfaceSize);
-			surfaceArray[index] = redVal;
-			surfaceArray[index + 1] = greenVal;
-			surfaceArray[index + 2] = blueVal;
+			surfaceArray[index] = redVal / 9;
+			surfaceArray[index + 1] = greenVal / 9;
+			surfaceArray[index + 2] = blueVal / 9;			
 		}
-	}
-
-
+	}*/
 }
 
 void CatPictureApp::mouseDown( MouseEvent event )
@@ -231,12 +255,11 @@ void CatPictureApp::update()
 	
 	//int arrayLength = 3 * (*mySurface_).getWidth() * (*mySurface_).getHeight();
 	uint8_t* surfaceArray = (*mySurface_).getData();
-	uint8_t* blurArray = new uint8_t[appWidth * appHeight * 3];
 	drawGradient(surfaceArray);
 	rectangle(surfaceArray, 200, 300, 200, 300);
 	drawCircle(surfaceArray, 400, 400, 200);
 	//tint(surfaceArray);
-	blur(surfaceArray, blurArray);
+	blur(surfaceArray);
 	
 
 	/*for(int x = 0; x < arrayLength; x++)
