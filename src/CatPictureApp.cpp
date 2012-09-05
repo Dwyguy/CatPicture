@@ -31,12 +31,19 @@ class CatPictureApp : public AppBasic {
 	void drawGradient(uint8_t* surfaceArray);
 	void drawCircle(uint8_t* surfaceArray, int centerX, int centerY, int radius);
 	void tint(uint8_t* surfaceArray);
+	void blur(uint8_t* surfaceArray, uint8_t* blurArray);
 };
 
 void CatPictureApp::prepareSettings(Settings* settings)
 {
 	(*settings).setWindowSize(appWidth, appHeight);
 	(*settings).setResizable(false);
+}
+
+void CatPictureApp::setup() // When the program starts
+{
+	mySurface_ = new Surface(surfaceSize, surfaceSize, false);
+	uint8_t* surfaceArray = (*mySurface_).getData();
 }
 
 void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2)
@@ -138,10 +145,12 @@ void CatPictureApp::tint(uint8_t* surfaceArray)
 				surfaceArray[ribbon] = 255;
 			else
 				surfaceArray[ribbon] += c.r;
+
 			if(surfaceArray[ribbon + 1] + c.g > 255)
 				surfaceArray[ribbon + 1] = 255;
 			else
 				surfaceArray[ribbon + 1] += c.g;
+
 			if(surfaceArray[ribbon + 2] + c.b > 255)
 				surfaceArray[ribbon + 2] = 255;
 			else
@@ -150,12 +159,67 @@ void CatPictureApp::tint(uint8_t* surfaceArray)
 	}
 }
 
-void CatPictureApp::setup() // When the program starts
+void CatPictureApp::blur(uint8_t* surfaceArray, uint8_t* blurArray)
 {
-	mySurface_ = new Surface(surfaceSize, surfaceSize, false);
-	uint8_t* surfaceArray = (*mySurface_).getData();
+	//uint8_t* blurArray = [appWidth * appHeight * 3];
+	// Need a temporary image to blur, so we don't overwrite what we have
+	static uint8_t tempBlur[surfaceSize * surfaceSize * 3];
+
+	uint8_t kernel[9] = {4, 3, 4,
+						 4, 3, 4,
+						 4, 3, 4};
+
+	int ribbon, blurX, blurY, index, n;
+	uint8_t redVal = 0, greenVal = 0, blueVal = 0;
 	
-	
+	// Loops start at 1 so the edge is not taken into account
+	for(int y = 1; y < appHeight - 1; y++)
+	{
+		for(int x = 1; x < appWidth - 1; x++)
+		{
+			// Use appWidth instead of surfaceSize here because we only
+			// want to blur what is visible in the window.
+			ribbon = 3 * (x + y * appWidth);
+
+			if(blurArray[ribbon] < (256 / 3)) // What does this mean?
+			{
+				redVal = 0;
+				greenVal = 0;
+				blueVal = 0;
+
+				for(blurY = -1; blurY < 1; blurY++)
+				{
+					for(blurX = -1; blurX < 1; blurX++)
+					{
+						index = 3 * ((x + blurX) + (y + blurY) * surfaceSize);
+						n = kernel[(blurX + 1) + (blurY + 1) * 3];
+
+						tempBlur[index] += n;
+						tempBlur[index + 1] += n;
+						tempBlur[index + 2] += n;
+
+						redVal += n;
+						greenVal += n;
+						blueVal += n;
+					}
+				}
+			}
+			else
+			{
+				index = 3 * (x + y * surfaceSize);
+				redVal = tempBlur[index];
+				greenVal = tempBlur[index + 1];
+				blueVal = tempBlur[index + 2];
+			}
+
+			index = 3 * (x + y * surfaceSize);
+			surfaceArray[index] = redVal;
+			surfaceArray[index + 1] = greenVal;
+			surfaceArray[index + 2] = blueVal;
+		}
+	}
+
+
 }
 
 void CatPictureApp::mouseDown( MouseEvent event )
@@ -167,10 +231,12 @@ void CatPictureApp::update()
 	
 	//int arrayLength = 3 * (*mySurface_).getWidth() * (*mySurface_).getHeight();
 	uint8_t* surfaceArray = (*mySurface_).getData();
+	uint8_t* blurArray = new uint8_t[appWidth * appHeight * 3];
 	drawGradient(surfaceArray);
 	rectangle(surfaceArray, 200, 300, 200, 300);
 	drawCircle(surfaceArray, 400, 400, 200);
-	tint(surfaceArray);
+	//tint(surfaceArray);
+	blur(surfaceArray, blurArray);
 	
 
 	/*for(int x = 0; x < arrayLength; x++)
