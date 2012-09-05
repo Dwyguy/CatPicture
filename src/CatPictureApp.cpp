@@ -1,3 +1,23 @@
+/**
+* @file HW01App.cpp
+* CSE 274 - Fall 2012
+* My solution for HW01
+*
+* @author Matthew Dwyer
+* @date 9/5/2012
+*
+* @note This file is (c) 2012. It is licensed under the
+* CC BY 3.0 license (http://creativecommons.org/licenses/by/3.0/),
+* which means you are free to use, share, and remix it as long as you
+* give attribution. Commercial uses are allowed.
+*
+* @note The code fore creating Textures and Surfaces comes from another
+* of my professor's projects, https://github.com/brinkmwj/CatPicture/blob/master/src/CatPictureApp.cpp
+*
+* @note This project satisfies goals A.1 (rectangle), A.2 (circle), A.4 (tint), A.6 (tint), and
+* E.5 (animation)
+*/
+
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
@@ -28,11 +48,62 @@ class CatPictureApp : public AppBasic {
 	static const int appWidth = 800;
 	static const int surfaceSize = 1024;
 
+	/**
+	Draws a rectangle on the screen.
+	@param surfaceArray - A uint8_t array that gets the current Surface of the screen.
+	@param x1, x2, y1, y2 - A starting or ending point of the rectangle, depending on their
+		locations.
+	@param c - A color parameter to set the color of the rectangle
+
+	This satisfies requirement A.1
+	*/
 	void drawRectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2, Color8u c);
+
+	/**
+	Draws a gradient background on the Surface
+	@param surfaceArray - A uint8_t array that gets the current Surface of the screen.
+
+	This satisfies requirement A.4
+	*/
 	void drawGradient(uint8_t* surfaceArray);
+
+	/**
+	Draws a circle on the screen.
+	@param surfaceArray - A uint8_t array that gets the current Surface of the screen.
+	@param centerX - The x-coordinate of the center of the circle
+	@param centerY - The y-coordinate of the center of the circle
+	@param radius - The radius of the circle
+	@param c - A color parameter to set the color of the rectangle
+
+	This satisfies requirement A.2
+	*/
 	void drawCircle(uint8_t* surfaceArray, int centerX, int centerY, int radius, Color8u c);
+
+	/**
+	Tints the screen a specified color
+	@param surfaceArray - A uint8_t array that gets the current Surface of the screen.
+
+	This satisfies requirement A.6
+	*/
 	void tint(uint8_t* surfaceArray);
+
+	/**
+	Blurs the pixels on the screen
+	@param surfaceArray - A uint8_t array that gets the current Surface of the screen.
+	NOTE: Currently not working
+	*/
 	void blur(uint8_t* surfaceArray);
+
+	/**
+	Draws Pacman and four dots on the screen in perspective
+	@param surfaceArray - A uint8_t array that gets the current Surface of the screen.
+	@param size1 - The size of the first dot
+	@param size2 - The size of the second dot
+	@param size3 - The size of the third dot
+	@param size4 - The size of the fourth dot
+
+	This satisfies requirements C and E.5
+	*/
 	void drawPacMan(uint8_t* surfaceArray, int size1, int size2, int size3, int size4);
 };
 
@@ -136,7 +207,7 @@ void CatPictureApp::drawGradient(uint8_t* surfaceArray)
 
 void CatPictureApp::tint(uint8_t* surfaceArray)
 {
-	Color8u c = Color8u(5, 0, 0);
+	Color8u c = Color8u(50, 0, 0);
 
 	for(int y = 0; y < surfaceSize; y++)
 	{
@@ -240,6 +311,7 @@ void CatPictureApp::update()
 		size4 = 60;
 
 	drawPacMan(surfaceArray, size1, size2, size3, size4);
+	tint(surfaceArray);
 	//rectangle(surfaceArray, 200, 300, 200, 300);
 	//drawCircle(surfaceArray, 400, 400, 200);
 	
