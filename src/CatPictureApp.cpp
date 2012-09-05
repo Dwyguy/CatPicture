@@ -22,6 +22,7 @@ class CatPictureApp : public AppBasic {
 	gl::Texture* myTexture_;
 	gl::Texture* picture_;
 	bool firstFrame;
+	int size1, size2, size3, size4;
 
 	static const int appHeight = 600;
 	static const int appWidth = 800;
@@ -32,7 +33,7 @@ class CatPictureApp : public AppBasic {
 	void drawCircle(uint8_t* surfaceArray, int centerX, int centerY, int radius, Color8u c);
 	void tint(uint8_t* surfaceArray);
 	void blur(uint8_t* surfaceArray);
-	void drawPacMan(uint8_t* surfaceArray);
+	void drawPacMan(uint8_t* surfaceArray, int size1, int size2, int size3, int size4);
 };
 
 void CatPictureApp::prepareSettings(Settings* settings)
@@ -44,7 +45,10 @@ void CatPictureApp::prepareSettings(Settings* settings)
 void CatPictureApp::setup() // When the program starts
 {
 	mySurface_ = new Surface(surfaceSize, surfaceSize, false);
-	uint8_t* surfaceArray = (*mySurface_).getData();
+	size1 = 30;
+	size2 = 40;
+	size3 = 50;
+	size4 = 60;
 }
 
 void CatPictureApp::drawRectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2, Color8u c)
@@ -132,7 +136,7 @@ void CatPictureApp::drawGradient(uint8_t* surfaceArray)
 
 void CatPictureApp::tint(uint8_t* surfaceArray)
 {
-	Color8u c = Color8u(255, 0, 0);
+	Color8u c = Color8u(5, 0, 0);
 
 	for(int y = 0; y < surfaceSize; y++)
 	{
@@ -190,16 +194,16 @@ void CatPictureApp::blur(uint8_t* surfaceArray)
 	
 }
 
-void CatPictureApp::drawPacMan(uint8_t* surfaceArray)
+void CatPictureApp::drawPacMan(uint8_t* surfaceArray, int size1, int size2, int size3, int size4)
 {
 	drawCircle(surfaceArray, 200, 100, 100, Color8u(255, 255, 0));// Body
-	drawCircle(surfaceArray, 180, 60, 12, Color8u(0, 0, 0)); // Left eye
-	drawCircle(surfaceArray, 250, 60, 12, Color8u(0, 0, 0)); // Right eye
+	drawCircle(surfaceArray, 180, 60, size1 - 18, Color8u(255 - size1, 0, 0)); // Left eye
+	drawCircle(surfaceArray, 250, 60, size1 - 18, Color8u(0, 0, 255 - size1)); // Right eye
 	drawRectangle(surfaceArray, 130, 110, 210, 155, Color8u(0, 0, 0)); // Mouth
-	drawCircle(surfaceArray, 300, 260, 30, Color8u(255, 255, 0));
-	drawCircle(surfaceArray, 400, 340, 40, Color8u(255, 255, 0));
-	drawCircle(surfaceArray, 520, 420, 50, Color8u(255, 255, 0));
-	drawCircle(surfaceArray, 640, 500, 60, Color8u(255, 255, 0));
+	drawCircle(surfaceArray, 300, 260, size1, Color8u(255, 255 - size1 * 2, 0));
+	drawCircle(surfaceArray, 400, 340, size2, Color8u(255, 255 - size2 * 2, 0));
+	drawCircle(surfaceArray, 520, 420, size3, Color8u(255, 255 - size3 * 2, 0));
+	drawCircle(surfaceArray, 640, 500, size4, Color8u(255, 255 - size4 * 2, 0));
 }
 
 void CatPictureApp::mouseDown( MouseEvent event)
@@ -213,7 +217,29 @@ void CatPictureApp::update()
 	uint8_t* surfaceArray = (*mySurface_).getData();
 	drawGradient(surfaceArray);
 
-	drawPacMan(surfaceArray);
+	
+
+	if(size1 < 50)
+		size1++;
+	else 
+		size1 = 30;
+
+	if(size2 < 60)
+		size2++;
+	else
+		size2 = 40;
+
+	if(size3 < 70)
+		size3++;
+	else
+		size3 = 50;
+
+	if(size4 < 80)
+		size4++;
+	else
+		size4 = 60;
+
+	drawPacMan(surfaceArray, size1, size2, size3, size4);
 	//rectangle(surfaceArray, 200, 300, 200, 300);
 	//drawCircle(surfaceArray, 400, 400, 200);
 	
