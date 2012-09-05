@@ -30,6 +30,7 @@ class CatPictureApp : public AppBasic {
 	void rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2);
 	void drawGradient(uint8_t* surfaceArray);
 	void drawCircle(uint8_t* surfaceArray, int centerX, int centerY, int radius);
+	void tint(uint8_t* surfaceArray);
 };
 
 void CatPictureApp::prepareSettings(Settings* settings)
@@ -70,26 +71,6 @@ void CatPictureApp::rectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int
 	}
 }
 
-void CatPictureApp::drawGradient(uint8_t* surfaceArray)
-{
-	Color8u c = Color8u(0, 0, 0);
-	
-	for(int y = 0; y < surfaceSize; y++)
-	{
-		for(int x = 0; x < appWidth; x++)
-		{
-			int ribbon = 3 * (x + y * surfaceSize);
-			
-			int special = (int)((256 * x) / appWidth);
-
-			surfaceArray[ribbon] = c.r + special;
-			surfaceArray[ribbon + 1] = c.g + special;
-			surfaceArray[ribbon + 2] = c.b + special;
-						
-		}
-	}
-}
-
 void CatPictureApp::drawCircle(uint8_t* surfaceArray, int centerX, int centerY, int radius)
 {
 	// Make sure the radius isn't negative
@@ -125,6 +106,50 @@ void CatPictureApp::drawCircle(uint8_t* surfaceArray, int centerX, int centerY, 
 
 }
 
+void CatPictureApp::drawGradient(uint8_t* surfaceArray)
+{
+	Color8u c = Color8u(0, 0, 0);
+	
+	for(int y = 0; y < surfaceSize; y++)
+	{
+		for(int x = 0; x < appWidth; x++)
+		{
+			int ribbon = 3 * (x + y * surfaceSize);
+			int special = (int)((256 * x) / appWidth);
+
+			surfaceArray[ribbon] = c.r + special;
+			surfaceArray[ribbon + 1] = c.g + special;
+			surfaceArray[ribbon + 2] = c.b + special;		
+		}
+	}
+}
+
+void CatPictureApp::tint(uint8_t* surfaceArray)
+{
+	Color8u c = Color8u(0, 0, 200);
+
+	for(int y = 0; y < surfaceSize; y++)
+	{
+		for(int x = 0; x < appWidth; x++)
+		{
+			int ribbon = 3 * (x + y * surfaceSize);
+
+			if(surfaceArray[ribbon] + c.r > 255)
+				surfaceArray[ribbon] = 255;
+			else
+				surfaceArray[ribbon] += c.r;
+			if(surfaceArray[ribbon + 1] + c.g > 255)
+				surfaceArray[ribbon + 1] = 255;
+			else
+				surfaceArray[ribbon + 1] += c.g;
+			if(surfaceArray[ribbon + 2] + c.b > 255)
+				surfaceArray[ribbon + 2] = 255;
+			else
+				surfaceArray[ribbon + 2] += c.b;
+		}
+	}
+}
+
 void CatPictureApp::setup() // When the program starts
 {
 	mySurface_ = new Surface(surfaceSize, surfaceSize, false);
@@ -145,6 +170,7 @@ void CatPictureApp::update()
 	drawGradient(surfaceArray);
 	rectangle(surfaceArray, 200, 300, 200, 300);
 	drawCircle(surfaceArray, 400, 400, 200);
+	tint(surfaceArray);
 	
 
 	/*for(int x = 0; x < arrayLength; x++)
