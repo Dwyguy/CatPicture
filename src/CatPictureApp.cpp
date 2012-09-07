@@ -23,8 +23,8 @@
 #include "cinder/gl/Texture.h"
 #include "Resources.h"
 #include "cinder\ImageIo.h"
-#include <math.h>
-
+//#include <math.h>
+// Stevie: I don't think you need math.h
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -43,6 +43,10 @@ class CatPictureApp : public AppBasic {
 	gl::Texture* picture_;
 	bool firstFrame;
 	int size1, size2, size3, size4;
+	int ribbon;
+	/* Stevie: Since ribbon is used in a lot of different methods,
+	 * can you just put ribbon here?
+	 */
 
 	static const int appHeight = 600;
 	static const int appWidth = 800;
@@ -120,6 +124,7 @@ void CatPictureApp::setup() // When the program starts
 	size2 = 40;
 	size3 = 50;
 	size4 = 60;
+	ribbon = 3 * (x + y * surfaceSize);
 }
 
 void CatPictureApp::drawRectangle(uint8_t* surfaceArray, int x1, int y1, int x2, int y2, Color8u c)
@@ -143,7 +148,7 @@ void CatPictureApp::drawRectangle(uint8_t* surfaceArray, int x1, int y1, int x2,
 	{
 		for(int x = startX; x <= endX; x++)
 		{
-			int ribbon = 3 * (x + y * surfaceSize);
+			//int ribbon = 3 * (x + y * surfaceSize);
 
 			surfaceArray[ribbon] = c.r;
 			surfaceArray[ribbon + 1] = c.g;
@@ -157,8 +162,6 @@ void CatPictureApp::drawCircle(uint8_t* surfaceArray, int centerX, int centerY, 
 	// Make sure the radius isn't negative
 	if(radius < 0)
 		return;
-
-	//Color8u c = Color8u(0, 255, 0);
 
 	// As a not for interesting effects later, if you get rid of the
 	// "- radius" in the initialization of the loop control variables
@@ -177,7 +180,7 @@ void CatPictureApp::drawCircle(uint8_t* surfaceArray, int centerX, int centerY, 
 
 			if(distance <= radius)
 			{
-				int ribbon = 3 * (x + y * surfaceSize);
+				//int ribbon = 3 * (x + y * surfaceSize);
 				surfaceArray[ribbon] = c.r;
 				surfaceArray[ribbon + 1] = c.g;
 				surfaceArray[ribbon + 2] = c.b;
@@ -195,7 +198,7 @@ void CatPictureApp::drawGradient(uint8_t* surfaceArray)
 	{
 		for(int x = 0; x < appWidth; x++)
 		{
-			int ribbon = 3 * (x + y * surfaceSize);
+			//int ribbon = 3 * (x + y * surfaceSize);
 			int special = (int)((256 * x) / appWidth);
 
 			surfaceArray[ribbon] = c.r ;//+ special;
@@ -213,7 +216,7 @@ void CatPictureApp::tint(uint8_t* surfaceArray)
 	{
 		for(int x = 0; x < appWidth; x++)
 		{
-			int ribbon = 3 * (x + y * surfaceSize);
+			//int ribbon = 3 * (x + y * surfaceSize);
 
 			if(surfaceArray[ribbon] + c.r > 255)
 				surfaceArray[ribbon] = 255;
@@ -235,8 +238,13 @@ void CatPictureApp::tint(uint8_t* surfaceArray)
 
 void CatPictureApp::blur(uint8_t* surfaceArray)
 {
+	/* Stevie: I didn't really understand how to do blur and wasn't able 
+	 * to complete it either, but I tried looking through this code anyways.
+	 * I didn't understand what was happening inside the for loop with blurY,
+	 * but it seemed like that code was off maybe.
+	 */
 
-	int ribbon, index;
+	int ribbon, index; // Stevie: ribbon isn't used in here. Also, index looks like ribbon from your other code. 
 	uint8_t redVal = 0, greenVal = 0, blueVal = 0;
 	uint8_t total = 0;
 
@@ -244,11 +252,12 @@ void CatPictureApp::blur(uint8_t* surfaceArray)
 	{
 		for(int x = 1; x <= appWidth - 1; x++)
 		{
-			index = 3 * (x + y * surfaceSize);
+			index = 3 * (x + y * surfaceSize); // Stevie: index = ribbon;
 			total = 0;
 
 			for(int blurY = -1; blurY <= 1; blurY++)
 			{
+				
 				for(int blurX = -1; blurX <= 1; blurX++)
 				{
 					redVal += surfaceArray[3 * (x + blurX + (y + blurY) * surfaceSize)];
@@ -267,6 +276,10 @@ void CatPictureApp::blur(uint8_t* surfaceArray)
 
 void CatPictureApp::drawPacMan(uint8_t* surfaceArray, int size1, int size2, int size3, int size4)
 {
+	/* Stevie: I like the idea of making this method.
+	 * It makes sense and makes the code look cleaner 
+	 * in the update method.
+	 */
 	drawCircle(surfaceArray, 200, 100, 100, Color8u(255, 255, 0));// Body
 	drawCircle(surfaceArray, 180, 60, size1 - 18, Color8u(255 - size1, 0, 0)); // Left eye
 	drawCircle(surfaceArray, 250, 60, size1 - 18, Color8u(0, 0, 255 - size1)); // Right eye
@@ -288,8 +301,9 @@ void CatPictureApp::update()
 	uint8_t* surfaceArray = (*mySurface_).getData();
 	drawGradient(surfaceArray);
 
-	
-
+	/* Stevie: I have my animation code in the update method too, but I was wondering 
+	 * if it's possible to do what you did with the drawPacMan method and make a new one.
+	 */
 	if(size1 < 50)
 		size1++;
 	else 
@@ -311,9 +325,7 @@ void CatPictureApp::update()
 		size4 = 60;
 
 	drawPacMan(surfaceArray, size1, size2, size3, size4);
-	tint(surfaceArray);
-	//rectangle(surfaceArray, 200, 300, 200, 300);
-	//drawCircle(surfaceArray, 400, 400, 200);
+	tint(surfaceArray); // Stevie: Can tint be put into drawPacMan?
 	
 	//blur(surfaceArray);
 
