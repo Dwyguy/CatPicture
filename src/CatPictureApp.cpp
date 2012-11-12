@@ -333,7 +333,9 @@ void CatPictureApp::update()
 
 void CatPictureApp::draw()
 {
-	gl::draw(*mySurface_);
+	//gl::draw(*mySurface_);
+	gl::draw(*myTexture_);
+	gl::Texture picture( loadImage( loadResource( RES_IMG) ) );
 }
 
 CINDER_APP_BASIC( CatPictureApp, RendererGl )
